@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 import Navigation from './components/Navigation/Navigation';
 import Signin from './components/Signin/Signin';
@@ -51,9 +51,7 @@ function App() {
     setState(prevState => ({...prevState, 'profile': {...profile}}));
   }
 
-  const onButtonSubmit = () => {
-    setState(prevState => ({...prevState, 'imageUrl': input}));
-
+  useEffect(() => {
     fetch("https://sbjsapi.herokuapp.com/imagepost", {
       method: "POST",
       headers: { 'Content-Type': 'application/json'},
@@ -91,7 +89,13 @@ function App() {
       }
     })
     .catch(error => console.debug('error', error));
+
+  }, [imageUrl])
+
+  const onButtonSubmit = () => {
+    setState(prevState => ({...prevState, 'imageUrl': input}));
   }
+  
   return (
     <div className="App">
       <ParticlesBg num={200} color='#CCCCCC' type="cobweb" bg={true} />
