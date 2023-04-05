@@ -90,12 +90,12 @@ function App() {
     })
     .catch(error => console.debug('error', error));
 
-  }, [imageUrl])
+  }, [imageUrl, profile])
 
   const onButtonSubmit = () => {
     setState(prevState => ({...prevState, 'imageUrl': input}));
   }
-  
+
   return (
     <div className="App">
       <ParticlesBg num={200} color='#CCCCCC' type="cobweb" bg={true} />
