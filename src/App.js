@@ -54,7 +54,7 @@ function App() {
   const onButtonSubmit = () => {
     setState(prevState => ({...prevState, 'imageUrl': input}));
 
-    fetch("http://localhost:3003/imagepost", {
+    fetch("https://sbjsapi.herokuapp.com/imagepost", {
       method: "POST",
       headers: { 'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -64,7 +64,7 @@ function App() {
     .then(response => response.json())
     .then(result => {
       if(result.outputs.length > 0){
-        fetch("http://localhost:3003/imagecount", {
+        fetch("https://sbjsapi.herokuapp.com/imagecount", {
           method: "PUT",
           headers: { 'Content-Type': 'application/json'},
           body: JSON.stringify({

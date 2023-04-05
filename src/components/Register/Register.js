@@ -26,7 +26,7 @@ const Register = ({ loadProfile, onRouteChange }) => {
             name: registerName
         };
         if(registerParams.email && registerParams.password && registerParams.name){
-            fetch("http://localhost:3003/register", {
+            fetch("https://sbjsapi.herokuapp.com/register", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json'},
                 body: JSON.stringify(registerParams)
