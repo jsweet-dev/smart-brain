@@ -16,7 +16,6 @@ if (process.env.NODE_ENV === 'production') {
   sbApiURL = 'http://localhost:3003';
 }
 
-
 const initialState = {
   input: '', 
   imageUrl: '', 
@@ -29,7 +28,8 @@ const initialState = {
     email: "",
     entries: 0,
     joined: ""
-  }
+  },
+  isProcessing: false
 }
 
 function App() {
@@ -38,7 +38,8 @@ function App() {
             faceData, 
             route, 
             isSignedIn, 
-            profile }
+            profile,
+            isProcessing }
           , setState] = useState(initialState);
 
   const onRouteChange = (route) => {
@@ -66,6 +67,7 @@ function App() {
   }
 
   useEffect(() => {
+    setState(prevState => ({...prevState, 'isProcessing': true}));
     if(imageUrl.length > 0){
       fetch(sbApiURL + "/imagepost", {
         method: "POST",
@@ -100,12 +102,17 @@ function App() {
         
             }
           }).catch(error => console.debug("error updating image entries count"))
-          setState(prevState => ({...prevState, 'faceData':result.outputs[0].data.regions} ));
+          setState(prevState => ({...prevState, 'faceData':result.outputs[0].data.regions, 'isProcessing': false} ));
         }
       })
-      .catch(error => console.debug('error', error));
-
+      .catch(error => {
+        console.debug('error', error);
+        setState(prevState => ({...prevState, 'isProcessing': false}));
+      }); 
+    } else {
+      setState(prevState => ({...prevState, 'isProcessing': false}));
     }
+
 
   }, [imageUrl])
 
@@ -122,7 +129,7 @@ function App() {
         ? <div>
             <Logo />
             <Rank userName={profile.name} entries={profile.entries} />
-            <ImageLinkForm onInputChange = {onInputChange } onButtonSubmit={onButtonSubmit}/> 
+            <ImageLinkForm onInputChange = {onInputChange } onButtonSubmit={onButtonSubmit} isProcessing={isProcessing}/> 
             <FacialRecognition imgUrl= { imageUrl } faceData={faceData}/>
           </div>
         : route === 'signin'
