@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useRef} from 'react';
 import './App.css';
 import Navigation from './components/Navigation/Navigation';
 import Signin from './components/Signin/Signin';
@@ -8,6 +8,8 @@ import Rank from './components/Rank/Rank';
 import ParticlesBg from 'particles-bg';
 import FacialRecognition from './components/FacialRecognition/FacialRecognition';
 import Register from './components/Register/Register';
+
+const sbApiURL = process.env.SB_API_URL || 'http://localhost:3003';
 
 const initialState = {
   input: '', 
@@ -43,6 +45,12 @@ function App() {
     setState(prevState => ({...prevState, 'route': route}));
   }
 
+  const profileRef = useRef(profile);
+
+  useEffect(() => {
+    profileRef.current = profile
+  }, [profile]);
+
   const onInputChange = (event) => {
     setState(prevState => ({...prevState, 'input': event.target.value}));
   }
@@ -51,47 +59,54 @@ function App() {
     setState(prevState => ({...prevState, 'profile': {...profile}}));
   }
 
+  useEffect(() => {
+    if(imageUrl.length > 0){
+      fetch(sbApiURL + "/imagepost", {
+        method: "POST",
+        headers: { 'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          image: imageUrl
+        })
+      })
+      .then(response => response.json())
+      .then(result => {
+        if(result.outputs.length > 0){
+          fetch(sbApiURL + "/imagecount", {
+            method: "PUT",
+            headers: { 'Content-Type': 'application/json'},
+            body: JSON.stringify({
+              id: profileRef.current.id
+            })
+          })
+          .then(response => {
+            if(response.ok){
+              return response.json()
+            } else {
+              throw Error("Could not update user");
+            }
+          })
+          .then(data => {
+            if(data){
+              loadProfile({
+                ...profileRef.current,
+                entries: data
+              })
+        
+            }
+          }).catch(error => console.debug("error updating image entries count"))
+          setState(prevState => ({...prevState, 'faceData':result.outputs[0].data.regions} ));
+        }
+      })
+      .catch(error => console.debug('error', error));
+
+    }
+
+  }, [imageUrl])
+
   const onButtonSubmit = () => {
     setState(prevState => ({...prevState, 'imageUrl': input}));
-
-    fetch("https://sbjsapi.herokuapp.com/imagepost", {
-      method: "POST",
-      headers: { 'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        image: imageUrl
-      })
-    })
-    .then(response => response.json())
-    .then(result => {
-      if(result.outputs.length > 0){
-        fetch("https://sbjsapi.herokuapp.com/imagecount", {
-          method: "PUT",
-          headers: { 'Content-Type': 'application/json'},
-          body: JSON.stringify({
-            id: profile.id
-          })
-        })
-        .then(response => {
-          if(response.ok){
-            return response.json()
-          } else {
-            throw Error("Could not update user");
-          }
-        })
-        .then(data => {
-          if(data){
-            loadProfile({
-              ...profile,
-              entries: data
-            })
-      
-          }
-        }).catch(error => console.debug("error updating image entries count"))
-        setState(prevState => ({...prevState, 'faceData':result.outputs[0].data.regions} ));
-      }
-    })
-    .catch(error => console.debug('error', error));
   }
+
   return (
     <div className="App">
       <ParticlesBg num={200} color='#CCCCCC' type="cobweb" bg={true} />
@@ -105,8 +120,8 @@ function App() {
             <FacialRecognition imgUrl= { imageUrl } faceData={faceData}/>
           </div>
         : route === 'signin'
-        ? <Signin loadProfile={loadProfile} onRouteChange={onRouteChange}></Signin>
-        : <Register loadProfile={loadProfile} onRouteChange={onRouteChange}></Register>
+        ? <Signin loadProfile={loadProfile} onRouteChange={onRouteChange} sbApiURL={sbApiURL}></Signin>
+        : <Register loadProfile={loadProfile} onRouteChange={onRouteChange} sbApiURL={sbApiURL}></Register>
       }
     </div>
   );

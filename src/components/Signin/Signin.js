@@ -2,7 +2,7 @@ import React, {useState} from "react";
 
 
 
-const Signin = ({ loadProfile, onRouteChange }) => {
+const Signin = ({ loadProfile, onRouteChange, sbApiURL }) => {
     const [signinEmail, setSigninEmail] = useState("");
     const [signinPwd, setSigninPwd] = useState("");
 
@@ -20,7 +20,7 @@ const Signin = ({ loadProfile, onRouteChange }) => {
             email: signinEmail.toLowerCase(),
             password: signinPwd
         };
-        fetch("https://sbjsapi.herokuapp.com/signin", {
+        fetch(sbApiURL + "/signin", {
             method: "POST",
             headers: { 'Content-Type': 'application/json'},
             body: JSON.stringify(signinParams)

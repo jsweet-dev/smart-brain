@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 
-const Register = ({ loadProfile, onRouteChange }) => {
+const Register = ({ loadProfile, onRouteChange, sbApiURL }) => {
     const [registerEmail, setRegisterEmail] = useState("");
     const [registerPwd, setRegisterPwd] = useState("");
     const [registerName, setRegisterName] = useState("");
@@ -26,7 +26,7 @@ const Register = ({ loadProfile, onRouteChange }) => {
             name: registerName
         };
         if(registerParams.email && registerParams.password && registerParams.name){
-            fetch("https://sbjsapi.herokuapp.com/register", {
+            fetch(sbApiURL + "/register", {
                 method: "POST",
                 headers: { 'Content-Type': 'application/json'},
                 body: JSON.stringify(registerParams)
