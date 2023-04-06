@@ -9,7 +9,13 @@ import ParticlesBg from 'particles-bg';
 import FacialRecognition from './components/FacialRecognition/FacialRecognition';
 import Register from './components/Register/Register';
 
-const sbApiURL = process.env.SB_API_URL || 'http://localhost:3003';
+let sbApiURL
+if (process.env.NODE_ENV === 'production') {
+  sbApiURL = "https://sbjsapi.herokuapp.com";
+} else {
+  sbApiURL = 'http://localhost:3003';
+}
+
 
 const initialState = {
   input: '', 
